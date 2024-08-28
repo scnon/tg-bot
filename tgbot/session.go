@@ -1,0 +1,9 @@
+package tgbot
+
+type Session struct {
+	LastBotId  int         `comment:"机器人的上一条消息ID"`
+	LastUserId int         `comment:"用户的上一条消息ID"`
+	UserData   interface{} `comment:"用户数据"`
+	State      string      `comment:"状态"`
+	Step       int         `comment:"步骤"`
+}
