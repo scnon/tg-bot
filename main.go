@@ -3,8 +3,9 @@ package main
 import (
 	"log"
 	"os"
-	"tg-bot/controllers"
-	"tg-bot/tgbot"
+
+	"github.com/scnon/tg-bot/controllers"
+	"github.com/scnon/tg-bot/tgbot"
 )
 
 func main() {

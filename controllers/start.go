@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"log"
-	"tg-bot/tgbot"
+
+	"github.com/scnon/tg-bot/tgbot"
 )
 
 // start 命令处理器

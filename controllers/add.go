@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/scnon/tg-bot/tgbot"
 	"strconv"
 	"strings"
-	"tg-bot/tgbot"
 )
 
 type AddController struct {

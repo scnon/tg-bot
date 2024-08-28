@@ -1,6 +1,6 @@
 package controllers
 
-import "tg-bot/tgbot"
+import "github.com/scnon/tg-bot/tgbot"
 
 // 文本消息处理器
 type TextController struct {

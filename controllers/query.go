@@ -1,6 +1,6 @@
 package controllers
 
-import "tg-bot/tgbot"
+import "github.com/scnon/tg-bot/tgbot"
 
 // 查询处理器
 type QueryController struct {
