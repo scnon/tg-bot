@@ -18,3 +18,14 @@ func (s *Session) NextStep() *Session {
 	s.Step++
 	return s
 }
+
+func (s *Session) ClearState() *Session {
+	s.State = ""
+	s.Step = 0
+	return s
+}
+
+func (s *Session) ResetStep() *Session {
+	s.Step = 0
+	return s
+}
