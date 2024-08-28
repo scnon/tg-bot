@@ -29,3 +29,11 @@ func (s *Session) ResetStep() *Session {
 	s.Step = 0
 	return s
 }
+
+func (s *Session) GetUserData(val interface{}) interface{} {
+	if s.UserData == nil {
+		s.UserData = val
+	}
+
+	return s.UserData
+}
