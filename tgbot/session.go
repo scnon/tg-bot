@@ -35,5 +35,5 @@ func (s *Session) GetUserData(val interface{}) interface{} {
 		s.UserData = val
 	}
 
-	return s.UserData
+	return &s.UserData
 }
