@@ -14,6 +14,7 @@ type Controller struct {
 	Session *Session
 	Param   string
 	Start   string
+	User    tgbotapi.User
 	update  tgbotapi.Update
 	bot     *tgbotapi.BotAPI
 }
@@ -29,6 +30,7 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 	c.bot = b
 	c.Param = text
 	c.update = update
+	c.User = c.GetUserInfo()
 	c.Session = SessionMgr.GetSession(c.GetUserInfo().ID)
 }
 

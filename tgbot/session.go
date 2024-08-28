@@ -7,3 +7,14 @@ type Session struct {
 	State      string      `comment:"状态"`
 	Step       int         `comment:"步骤"`
 }
+
+func (s *Session) NewState(state string) *Session {
+	s.State = state
+	s.Step = 1
+	return s
+}
+
+func (s *Session) NextStep() *Session {
+	s.Step++
+	return s
+}
