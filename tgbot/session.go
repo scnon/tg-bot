@@ -1,11 +1,11 @@
 package tgbot
 
 type Session struct {
-	LastBotId  int         `comment:"机器人的上一条消息ID"`
-	LastUserId int         `comment:"用户的上一条消息ID"`
-	UserData   interface{} `comment:"用户数据"`
-	State      string      `comment:"状态"`
-	Step       int         `comment:"步骤"`
+	LastBotId  int         `json:"last_bot_id" comment:"机器人的上一条消息ID"`
+	LastUserId int         `json:"last_user_id" comment:"用户的上一条消息ID"`
+	UserData   interface{} `json:"userdata" comment:"用户数据"`
+	State      string      `json:"state" comment:"状态"`
+	Step       int         `json:"step" comment:"步骤"`
 }
 
 func (s *Session) NewState(state string) *Session {
@@ -35,5 +35,5 @@ func (s *Session) GetUserData(val interface{}) interface{} {
 		s.UserData = val
 	}
 
-	return &s.UserData
+	return s.UserData
 }
