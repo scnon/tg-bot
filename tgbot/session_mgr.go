@@ -18,7 +18,7 @@ type SessionManager struct {
 func (m *SessionManager) GetSession(uid int64) *Session {
 	session := m.sessions[uid]
 	if session == nil {
-		session = &Session{}
+		session = &Session{ID: uid}
 		m.sessions[uid] = session
 	}
 
