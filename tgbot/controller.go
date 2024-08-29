@@ -30,6 +30,7 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 	c.Param = text
 	c.update = update
 	c.User = c.GetUserInfo()
+	c.Session = SessionMgr.GetSession(c.GetUserInfo().ID)
 
 	switch {
 	case update.Message != nil:
@@ -39,8 +40,6 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 	case update.EditedMessage != nil:
 		c.Session.SaveUserID(update.EditedMessage.MessageID)
 	}
-
-	c.Session = SessionMgr.GetSession(c.GetUserInfo().ID)
 }
 
 func (c *Controller) Handle() {
