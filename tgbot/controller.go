@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -31,6 +30,16 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 	c.Param = text
 	c.update = update
 	c.User = c.GetUserInfo()
+
+	switch {
+	case update.Message != nil:
+		c.Session.SaveUserID(update.Message.MessageID)
+	case update.CallbackQuery != nil:
+		c.Session.SaveUserID(update.CallbackQuery.Message.MessageID)
+	case update.EditedMessage != nil:
+		c.Session.SaveUserID(update.EditedMessage.MessageID)
+	}
+
 	c.Session = SessionMgr.GetSession(c.GetUserInfo().ID)
 }
 
@@ -124,13 +133,13 @@ func (c *Controller) EditLastBotPhotoWithUrl(path, caption string, buttons [][]B
 }
 
 func (c *Controller) editPhotoWithButtons(path, caption string, buttons [][]Button) {
-	buff, err := os.ReadFile(path)
-	if err != nil {
-		log.Println("file read error:", err)
-		return
+	var file tgbotapi.RequestFileData
+	if strings.HasPrefix(path, "http") {
+		file = tgbotapi.FileURL(path)
+	} else {
+		file = tgbotapi.FilePath(path)
 	}
 
-	file := tgbotapi.FileBytes{Name: "photo", Bytes: buff}
 	baseMedia := tgbotapi.BaseInputMedia{
 		Type:      "photo",
 		Media:     file,
@@ -194,7 +203,7 @@ func (c *Controller) GetUserInfo() tgbotapi.User {
 	return user
 }
 
-func (c *Controller) SendPhotoFile(path, caption string) {
+func (c *Controller) SendPhoto(path, caption string) {
 	c.sendPhoto(path, caption, nil)
 }
 
@@ -203,17 +212,13 @@ func (c *Controller) SendPhotoFileWithUrl(path, caption string, buttons [][]Butt
 }
 
 func (c *Controller) sendPhoto(path, caption string, buttons [][]Button) {
-	buff, err := os.ReadFile(path)
-	if err != nil {
-		log.Println("file read error:", err)
-		return
+	var msg tgbotapi.PhotoConfig
+	if strings.HasPrefix(path, "http") {
+		msg = tgbotapi.NewPhoto(c.ChatId(), tgbotapi.FileURL(path))
+	} else {
+		msg = tgbotapi.NewPhoto(c.ChatId(), tgbotapi.FilePath(path))
 	}
-	c.SendPhotoBytes(buff, caption, buttons)
-}
 
-func (c *Controller) SendPhotoBytes(buff []byte, caption string, buttons [][]Button) {
-	file := tgbotapi.FileBytes{Name: "photo", Bytes: buff}
-	msg := tgbotapi.NewPhoto(c.ChatId(), file)
 	msg.Caption = caption
 	msg.ParseMode = "HTML"
 	msg.ReplyMarkup = c.makeInlineKeyboard(buttons)

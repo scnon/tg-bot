@@ -9,6 +9,18 @@ type Session struct {
 	Step       int         `json:"step" comment:"步骤"`
 }
 
+func (s *Session) SaveBotID(id int) *Session {
+	s.LastBotId = id
+	SessionMgr.OnChange(s)
+	return s
+}
+
+func (s *Session) SaveUserID(id int) *Session {
+	s.LastUserId = id
+	SessionMgr.OnChange(s)
+	return s
+}
+
 func (s *Session) NewState(state string) *Session {
 	s.State = state
 	s.Step = 1
