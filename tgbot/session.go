@@ -11,22 +11,26 @@ type Session struct {
 func (s *Session) NewState(state string) *Session {
 	s.State = state
 	s.Step = 1
+	SessionMgr.OnChange(s)
 	return s
 }
 
 func (s *Session) NextStep() *Session {
 	s.Step++
+	SessionMgr.OnChange(s)
 	return s
 }
 
 func (s *Session) ClearState() *Session {
 	s.State = ""
 	s.Step = 0
+	SessionMgr.OnChange(s)
 	return s
 }
 
 func (s *Session) ResetStep() *Session {
 	s.Step = 0
+	SessionMgr.OnChange(s)
 	return s
 }
 
@@ -36,4 +40,9 @@ func (s *Session) GetUserData(val interface{}) interface{} {
 	}
 
 	return s.UserData
+}
+
+func (s *Session) SetUserData(val interface{}) {
+	s.UserData = val
+	SessionMgr.OnChange(s)
 }

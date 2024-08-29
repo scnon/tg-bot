@@ -1,5 +1,7 @@
 package tgbot
 
+type SessionEvent func(s *Session)
+
 var SessionMgr *SessionManager
 
 func init() {
@@ -9,6 +11,7 @@ func init() {
 }
 
 type SessionManager struct {
+	events   []SessionEvent
 	sessions map[int64]*Session
 }
 
@@ -24,4 +27,14 @@ func (m *SessionManager) GetSession(uid int64) *Session {
 
 func (m *SessionManager) LoadSession(sessions map[int64]*Session) {
 	m.sessions = sessions
+}
+
+func (m *SessionManager) RegSessionEvent(event SessionEvent) {
+	m.events = append(m.events, event)
+}
+
+func (m *SessionManager) OnChange(s *Session) {
+	for _, event := range m.events {
+		event(s)
+	}
 }
