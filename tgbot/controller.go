@@ -9,6 +9,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+const ParseMode = "HTML"
+
 type Controller struct {
 	Session *Session
 	Param   string
@@ -62,14 +64,31 @@ func (c *Controller) HandleNext() bool {
 }
 
 func (c *Controller) DefaultMenu() {
-	c.setMenuButton("default", "", "")
+	c.setMenuButtonUrl("default", "", "")
 }
 
-func (c *Controller) ShowMenu(text, url string) {
-	c.setMenuButton("web_app", text, url)
+func (c *Controller) ShowMenuUrl(text, url string) {
+	c.setMenuButtonUrl("web_app", text, url)
 }
 
-func (c *Controller) setMenuButton(buttonType, text, url string) {
+func (c *Controller) ShowMenu(text string) {
+	c.setMenuButton("commands", text)
+}
+
+func (c *Controller) setMenuButton(buttonType, text string) {
+	_, err := c.bot.Request(tgbotapi.SetChatMenuButtonConfig{
+		ChatID: c.ChatId(),
+		MenuButton: &tgbotapi.MenuButton{
+			Type: buttonType,
+			Text: text,
+		},
+	})
+	if err != nil {
+		log.Println("SetMenuButton error:", err)
+	}
+}
+
+func (c *Controller) setMenuButtonUrl(buttonType, text, url string) {
 	_, err := c.bot.Request(tgbotapi.SetChatMenuButtonConfig{
 		ChatID: c.ChatId(),
 		MenuButton: &tgbotapi.MenuButton{
@@ -143,7 +162,7 @@ func (c *Controller) editPhotoWithButtons(path, caption string, buttons [][]Butt
 		Type:      "photo",
 		Media:     file,
 		Caption:   caption,
-		ParseMode: "HTML",
+		ParseMode: ParseMode,
 	}
 
 	msg := tgbotapi.EditMessageMediaConfig{
@@ -203,14 +222,18 @@ func (c *Controller) GetUserInfo() tgbotapi.User {
 }
 
 func (c *Controller) SendPhoto(path, caption string) {
-	c.sendPhoto(path, caption, nil)
+	c.sendPhoto(path, caption, nil, false)
 }
 
 func (c *Controller) SendPhotoFileWithUrl(path, caption string, buttons [][]Button) {
-	c.sendPhoto(path, caption, buttons)
+	c.sendPhoto(path, caption, buttons, false)
 }
 
-func (c *Controller) sendPhoto(path, caption string, buttons [][]Button) {
+func (c *Controller) SendPhotoFileWithKeyboard(path, caption string, buttons [][]Button) {
+	c.sendPhoto(path, caption, buttons, true)
+}
+
+func (c *Controller) sendPhoto(path, caption string, buttons [][]Button, keyboard bool) {
 	var msg tgbotapi.PhotoConfig
 	if strings.HasPrefix(path, "http") {
 		msg = tgbotapi.NewPhoto(c.ChatId(), tgbotapi.FileURL(path))
@@ -219,15 +242,31 @@ func (c *Controller) sendPhoto(path, caption string, buttons [][]Button) {
 	}
 
 	msg.Caption = caption
-	msg.ParseMode = "HTML"
-	msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+	msg.ParseMode = ParseMode
+	if keyboard {
+		msg.ReplyMarkup = c.makeKeyboard(buttons)
+	} else {
+		msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+	}
 	c.send(msg)
 }
 
 func (c *Controller) SendWithUrl(text string, buttons [][]Button) {
+	c.sendMsg(text, buttons, false)
+}
+
+func (c *Controller) SendWithKeyboard(text string, buttons [][]Button) {
+	c.sendMsg(text, buttons, true)
+}
+
+func (c *Controller) sendMsg(text string, buttons [][]Button, keyboard bool) {
 	msg := tgbotapi.NewMessage(c.ChatId(), text)
-	msg.ParseMode = "HTML"
-	msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+	msg.ParseMode = ParseMode
+	if keyboard {
+		msg.ReplyMarkup = c.makeKeyboard(buttons)
+	} else {
+		msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+	}
 	c.send(msg)
 }
 
@@ -282,6 +321,26 @@ func (c *Controller) makeInlineKeyboard(buttons [][]Button) *tgbotapi.InlineKeyb
 	}
 
 	return &tgbotapi.InlineKeyboardMarkup{InlineKeyboard: keyboard}
+}
+
+func (c *Controller) makeKeyboard(buttons [][]Button) *tgbotapi.ReplyKeyboardMarkup {
+	if len(buttons) == 0 {
+		return nil
+	}
+	keyboard := make([][]tgbotapi.KeyboardButton, len(buttons))
+	for i, row := range buttons {
+		keyboard[i] = make([]tgbotapi.KeyboardButton, len(row))
+		for j, btn := range row {
+			keyboard[i][j] = tgbotapi.KeyboardButton{
+				Text: btn.Label,
+			}
+		}
+	}
+
+	return &tgbotapi.ReplyKeyboardMarkup{
+		Keyboard:       keyboard,
+		ResizeKeyboard: true,
+	}
 }
 
 func (c *Controller) SendError(err error) {
