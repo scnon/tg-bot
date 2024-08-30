@@ -324,9 +324,6 @@ func (c *Controller) makeInlineKeyboard(buttons [][]Button) *tgbotapi.InlineKeyb
 }
 
 func (c *Controller) makeKeyboard(buttons [][]Button) *tgbotapi.ReplyKeyboardMarkup {
-	if len(buttons) == 0 {
-		return nil
-	}
 	keyboard := make([][]tgbotapi.KeyboardButton, len(buttons))
 	for i, row := range buttons {
 		keyboard[i] = make([]tgbotapi.KeyboardButton, len(row))
@@ -341,6 +338,12 @@ func (c *Controller) makeKeyboard(buttons [][]Button) *tgbotapi.ReplyKeyboardMar
 		Keyboard:       keyboard,
 		ResizeKeyboard: true,
 	}
+}
+
+func (c *Controller) RemoveKeyboard(text string) {
+	msg := tgbotapi.NewMessage(c.ChatId(), text)
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	c.send(msg)
 }
 
 func (c *Controller) SendError(err error) {

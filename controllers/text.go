@@ -9,5 +9,5 @@ type TextController struct {
 
 // 处理文本消息
 func (c *TextController) Handle() {
-	c.SendMsg("收到文本消息")
+	c.RemoveKeyboard("remove")
 }
