@@ -128,18 +128,18 @@ func (c *Controller) deleteMessage(messageId int) {
 		return
 	}
 	msg := tgbotapi.NewDeleteMessage(c.ChatId(), messageId)
-	c.sendEdit(msg)
+	c.sendWithoutRecord(msg)
 }
 
 func (c *Controller) EditLastBotMsg(text string) {
 	msg := tgbotapi.NewEditMessageText(c.ChatId(), c.Session.LastBotId, text)
-	c.sendEdit(msg)
+	c.sendWithoutRecord(msg)
 }
 
 func (c *Controller) EditLastBotMsgWithUrl(text string, buttons [][]Button) {
 	msg := tgbotapi.NewEditMessageText(c.ChatId(), c.Session.LastBotId, text)
 	msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
-	c.sendEdit(msg)
+	c.sendWithoutRecord(msg)
 }
 
 func (c *Controller) EditLastBotPhoto(path, caption string) {
@@ -175,7 +175,7 @@ func (c *Controller) editPhotoWithButtons(path, caption string, buttons [][]Butt
 			BaseInputMedia: baseMedia,
 		},
 	}
-	c.sendEdit(msg)
+	c.sendWithoutRecord(msg)
 }
 
 func (c *Controller) AnswerCallback(text string) {
@@ -245,10 +245,11 @@ func (c *Controller) sendPhoto(path, caption string, buttons [][]Button, keyboar
 	msg.ParseMode = ParseMode
 	if keyboard {
 		msg.ReplyMarkup = c.makeKeyboard(buttons)
+		c.sendWithoutRecord(msg)
 	} else {
 		msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+		c.send(msg)
 	}
-	c.send(msg)
 }
 
 func (c *Controller) SendWithUrl(text string, buttons [][]Button) {
@@ -264,10 +265,11 @@ func (c *Controller) sendMsg(text string, buttons [][]Button, keyboard bool) {
 	msg.ParseMode = ParseMode
 	if keyboard {
 		msg.ReplyMarkup = c.makeKeyboard(buttons)
+		c.sendWithoutRecord(msg)
 	} else {
 		msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+		c.send(msg)
 	}
-	c.send(msg)
 }
 
 func (c *Controller) send(msg tgbotapi.Chattable) {
@@ -282,7 +284,7 @@ func (c *Controller) send(msg tgbotapi.Chattable) {
 	}
 }
 
-func (c *Controller) sendEdit(msg tgbotapi.Chattable) {
+func (c *Controller) sendWithoutRecord(msg tgbotapi.Chattable) {
 	_, err := c.bot.Request(msg)
 	if err != nil {
 		log.Println("SendEdit error:", err)
