@@ -72,3 +72,7 @@ func (s *Session) AddError(err int) {
 func (s *Session) GetErrors() []int {
 	return s.errorList
 }
+
+func (s *Session) ClearErrors() {
+	s.errorList = []int{}
+}

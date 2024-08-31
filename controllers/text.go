@@ -9,5 +9,9 @@ type TextController struct {
 
 // 处理文本消息
 func (c *TextController) Handle() {
-	c.RemoveKeyboard("remove")
+	c.EditLastBotMsgWithUrl("remove", [][]tgbot.Button{
+		{
+			{Id: 1, Label: "删除", Data: "remove"},
+		},
+	})
 }

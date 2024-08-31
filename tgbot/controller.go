@@ -46,6 +46,7 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 	for _, id := range c.Session.GetErrors() {
 		c.deleteMessage(id)
 	}
+	c.Session.ClearErrors()
 }
 
 func (c *Controller) Handle() {
@@ -289,7 +290,7 @@ func (c *Controller) send(msg tgbotapi.Chattable) {
 }
 
 func (c *Controller) sendError(text string) {
-	msg := tgbotapi.NewEditMessageText(c.ChatId(), c.Session.LastBotId, text)
+	msg := tgbotapi.NewMessage(c.ChatId(), text)
 	res, err := c.bot.Send(msg)
 	if err != nil {
 		log.Println("Send error:", err)
