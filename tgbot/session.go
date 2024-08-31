@@ -7,6 +7,7 @@ type Session struct {
 	UserData   interface{} `json:"userdata" comment:"用户数据"`
 	State      string      `json:"state" comment:"状态"`
 	Step       int         `json:"step" comment:"步骤"`
+	errorList  []int       `comment:"错误提示消息列表"`
 }
 
 func (s *Session) SaveBotID(id int) *Session {
@@ -58,4 +59,16 @@ func (s *Session) GetUserData(val interface{}) interface{} {
 func (s *Session) SetUserData(val interface{}) {
 	s.UserData = val
 	SessionMgr.OnChange(s)
+}
+
+func (s *Session) HasError() bool {
+	return len(s.errorList) > 0
+}
+
+func (s *Session) AddError(err int) {
+	s.errorList = append(s.errorList, err)
+}
+
+func (s *Session) GetErrors() []int {
+	return s.errorList
 }

@@ -2,13 +2,14 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/scnon/tg-bot/controllers"
 	"github.com/scnon/tg-bot/tgbot"
 )
 
 func main() {
-	token := "6588358108:AAGgEe8wDgcHR_f8iSi90GU-uS-u1W47wjE" // os.Getenv("BOT_TOKEN")
+	token := os.Getenv("BOT_TOKEN")
 	if token == "" {
 		log.Println("BOT_TOKEN", "not found")
 		return

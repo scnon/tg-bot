@@ -14,7 +14,7 @@ type StartController struct {
 // 处理 start 命令
 func (c *StartController) Handle() {
 	log.Println("start controller handle", c.Param)
-	c.SendWithKeyboard("123", [][]tgbot.Button{
+	c.SendWithKeyboard("calc", [][]tgbot.Button{
 		{
 			{Id: 1, Label: "加法", Data: "add"},
 		},

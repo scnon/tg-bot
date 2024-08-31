@@ -42,6 +42,10 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 	case update.EditedMessage != nil:
 		c.Session.SaveUserID(update.EditedMessage.MessageID)
 	}
+
+	for _, id := range c.Session.GetErrors() {
+		c.deleteMessage(id)
+	}
 }
 
 func (c *Controller) Handle() {
@@ -284,6 +288,19 @@ func (c *Controller) send(msg tgbotapi.Chattable) {
 	}
 }
 
+func (c *Controller) sendError(text string) {
+	msg := tgbotapi.NewEditMessageText(c.ChatId(), c.Session.LastBotId, text)
+	res, err := c.bot.Send(msg)
+	if err != nil {
+		log.Println("Send error:", err)
+		return
+	}
+
+	if res.MessageID != 0 {
+		c.Session.AddError(res.MessageID)
+	}
+}
+
 func (c *Controller) sendWithoutRecord(msg tgbotapi.Chattable) {
 	_, err := c.bot.Request(msg)
 	if err != nil {
@@ -349,9 +366,9 @@ func (c *Controller) RemoveKeyboard(text string) {
 }
 
 func (c *Controller) SendError(err error) {
-	c.SendMsg(fmt.Sprintf("❌❌❌ %s 请稍后重试", err.Error()))
+	c.sendError(fmt.Sprintf("❌❌❌ %s 请稍后重试", err.Error()))
 }
 
 func (c *Controller) SendInputError(reason string) {
-	c.SendMsg(fmt.Sprintf("❌❌❌ %s 请重新输入", reason))
+	c.sendError(fmt.Sprintf("❌❌❌ %s 请重新输入", reason))
 }
