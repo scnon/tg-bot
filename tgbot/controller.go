@@ -257,6 +257,30 @@ func (c *Controller) sendPhoto(path, caption string, buttons [][]Button, keyboar
 	}
 }
 
+func (c *Controller) SendVideo(path, caption string) {
+	c.sendVideo(path, caption, nil, false)
+}
+
+func (c *Controller) SendVideoWithUrl(path, caption string, buttons [][]Button) {
+	c.sendVideo(path, caption, buttons, false)
+}
+
+func (c *Controller) SendVideoWithKeyboard(path, caption string, buttons [][]Button) {
+	c.sendVideo(path, caption, buttons, true)
+}
+
+func (c *Controller) sendVideo(path, caption string, buttons [][]Button, keyboard bool) {
+	msg := tgbotapi.NewVideo(c.ChatId(), tgbotapi.FilePath(path))
+	msg.Caption = caption
+	msg.ParseMode = ParseMode
+	if keyboard {
+		msg.ReplyMarkup = c.makeKeyboard(buttons)
+	} else {
+		msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+	}
+	c.send(msg)
+}
+
 func (c *Controller) SendWithUrl(text string, buttons [][]Button) {
 	c.sendMsg(text, buttons, false)
 }
