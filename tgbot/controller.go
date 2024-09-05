@@ -372,8 +372,17 @@ func (c *Controller) makeKeyboard(buttons [][]Button) *tgbotapi.ReplyKeyboardMar
 	for i, row := range buttons {
 		keyboard[i] = make([]tgbotapi.KeyboardButton, len(row))
 		for j, btn := range row {
-			keyboard[i][j] = tgbotapi.KeyboardButton{
-				Text: btn.Label,
+			if strings.HasPrefix(btn.Data, "app") {
+				keyboard[i][j] = tgbotapi.KeyboardButton{
+					Text: btn.Label,
+					WebApp: &tgbotapi.WebAppInfo{
+						URL: strings.Replace(btn.Data, "app", "https", 1),
+					},
+				}
+			} else {
+				keyboard[i][j] = tgbotapi.KeyboardButton{
+					Text: btn.Label,
+				}
 			}
 		}
 	}
