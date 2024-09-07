@@ -110,12 +110,14 @@ func (c *Controller) setMenuButtonUrl(buttonType, text, url string) {
 
 func (c *Controller) Reply(text string) {
 	msg := tgbotapi.NewMessage(c.ChatId(), text)
+	msg.ParseMode = ParseMode
 	msg.ReplyToMessageID = c.update.Message.MessageID
 	c.send(msg)
 }
 
 func (c *Controller) SendMsg(text string) {
 	msg := tgbotapi.NewMessage(c.ChatId(), text)
+	msg.ParseMode = ParseMode
 	c.send(msg)
 }
 
@@ -131,19 +133,20 @@ func (c *Controller) deleteMessage(messageId int) {
 	if messageId == 0 {
 		return
 	}
-	log.Println("DeleteMessage:", messageId)
 	msg := tgbotapi.NewDeleteMessage(c.ChatId(), messageId)
 	c.sendWithoutRecord(msg)
 }
 
 func (c *Controller) EditLastBotMsg(text string) {
 	msg := tgbotapi.NewEditMessageText(c.ChatId(), c.Session.LastBotId, text)
+	msg.ParseMode = ParseMode
 	c.sendWithoutRecord(msg)
 }
 
 func (c *Controller) EditLastBotMsgWithUrl(text string, buttons [][]Button) {
 	msg := tgbotapi.NewEditMessageText(c.ChatId(), c.Session.LastBotId, text)
 	msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
+	msg.ParseMode = ParseMode
 	c.sendWithoutRecord(msg)
 }
 
@@ -308,7 +311,6 @@ func (c *Controller) send(msg tgbotapi.Chattable) {
 		return
 	}
 
-	log.Println("Send:", res.MessageID)
 	if res.MessageID != 0 {
 		c.Session.LastBotId = res.MessageID
 	}
@@ -396,6 +398,7 @@ func (c *Controller) makeKeyboard(buttons [][]Button) *tgbotapi.ReplyKeyboardMar
 
 func (c *Controller) RemoveKeyboard(text string) {
 	msg := tgbotapi.NewMessage(c.ChatId(), text)
+	msg.ParseMode = ParseMode
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 	c.send(msg)
 }
