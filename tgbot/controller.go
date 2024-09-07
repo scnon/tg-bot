@@ -1,7 +1,6 @@
 package tgbot
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -52,19 +51,19 @@ func (c *Controller) Init(update tgbotapi.Update, b *tgbotapi.BotAPI, text strin
 func (c *Controller) Handle() {
 	msg := "bot handler not implemented"
 	log.Println(msg)
-	c.SendError(errors.New(msg))
+	c.SendError(msg)
 }
 
 func (c *Controller) HandleEdit() {
 	msg := "bot edit handler not implemented"
 	log.Println(msg)
-	c.SendError(errors.New(msg))
+	c.SendError(msg)
 }
 
 func (c *Controller) HandleNext() bool {
 	msg := "bot anyhandler not implemented"
 	log.Println(msg)
-	c.SendError(errors.New(msg))
+	c.SendError(msg)
 	return false
 }
 
@@ -132,6 +131,7 @@ func (c *Controller) deleteMessage(messageId int) {
 	if messageId == 0 {
 		return
 	}
+	log.Println("DeleteMessage:", messageId)
 	msg := tgbotapi.NewDeleteMessage(c.ChatId(), messageId)
 	c.sendWithoutRecord(msg)
 }
@@ -308,6 +308,7 @@ func (c *Controller) send(msg tgbotapi.Chattable) {
 		return
 	}
 
+	log.Println("Send:", res.MessageID)
 	if res.MessageID != 0 {
 		c.Session.LastBotId = res.MessageID
 	}
@@ -329,7 +330,7 @@ func (c *Controller) sendError(text string) {
 func (c *Controller) sendWithoutRecord(msg tgbotapi.Chattable) {
 	_, err := c.bot.Request(msg)
 	if err != nil {
-		log.Println("SendEdit error:", err)
+		log.Println("SendWithoutRecord error:", err)
 	}
 }
 
@@ -399,8 +400,8 @@ func (c *Controller) RemoveKeyboard(text string) {
 	c.send(msg)
 }
 
-func (c *Controller) SendError(err error) {
-	c.sendError(fmt.Sprintf("❌❌❌ %s 请稍后重试", err.Error()))
+func (c *Controller) SendError(reason string) {
+	c.sendError(fmt.Sprintf("❌❌❌ %s 请稍后重试", reason))
 }
 
 func (c *Controller) SendInputError(reason string) {
