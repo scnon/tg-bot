@@ -151,14 +151,22 @@ func (c *Controller) EditLastBotMsgWithUrl(text string, buttons [][]Button) {
 }
 
 func (c *Controller) EditLastBotPhoto(path, caption string) {
-	c.editPhotoWithButtons(path, caption, nil)
+	c.editMediaWithButtons(path, "photo", caption, nil)
+}
+
+func (c *Controller) EditLastBotVideo(path, kind, caption string) {
+	c.editMediaWithButtons(path, "video", caption, nil)
 }
 
 func (c *Controller) EditLastBotPhotoWithUrl(path, caption string, buttons [][]Button) {
-	c.editPhotoWithButtons(path, caption, buttons)
+	c.editMediaWithButtons(path, "photo", caption, buttons)
 }
 
-func (c *Controller) editPhotoWithButtons(path, caption string, buttons [][]Button) {
+func (c *Controller) EditLastBotVideoWithUrl(path, caption string, buttons [][]Button) {
+	c.editMediaWithButtons(path, "video", caption, buttons)
+}
+
+func (c *Controller) editMediaWithButtons(path, kind, caption string, buttons [][]Button) {
 	var file tgbotapi.RequestFileData
 	if strings.HasPrefix(path, "http") {
 		file = tgbotapi.FileURL(path)
@@ -167,7 +175,7 @@ func (c *Controller) editPhotoWithButtons(path, caption string, buttons [][]Butt
 	}
 
 	baseMedia := tgbotapi.BaseInputMedia{
-		Type:      "photo",
+		Type:      kind,
 		Media:     file,
 		Caption:   caption,
 		ParseMode: ParseMode,

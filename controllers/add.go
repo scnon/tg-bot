@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/scnon/tg-bot/tgbot"
 	"strconv"
 	"strings"
+
+	"github.com/scnon/tg-bot/tgbot"
 )
 
 type AddController struct {
@@ -15,7 +16,11 @@ func (c *AddController) Handle() {
 	params := strings.Split(c.Param, " ")
 	result := calcResult(params)
 
-	c.SendMsg(fmt.Sprintf("结果是：%d", result))
+	c.EditLastBotPhotoWithUrl("assets/edit_1.png", fmt.Sprintf("结果是：%d", result), [][]tgbot.Button{
+		{
+			{Id: 1, Label: "编辑", Data: "edit"},
+		},
+	})
 }
 
 func (c *AddController) HandleEdit() {
