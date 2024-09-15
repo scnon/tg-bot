@@ -4,7 +4,7 @@ type Session struct {
 	ID         int64       `json:"id" comment:"用户ID"`
 	LastBotId  int         `json:"last_bot_id" comment:"机器人的上一条消息ID"`
 	LastUserId int         `json:"last_user_id" comment:"用户的上一条消息ID"`
-	UserData   interface{} `json:"userdata" comment:"用户数据"`
+	userdata   interface{} `json:"userdata" comment:"用户数据"`
 	State      string      `json:"state" comment:"状态"`
 	Step       int         `json:"step" comment:"步骤"`
 	errorList  []int       `comment:"错误提示消息列表"`
@@ -49,15 +49,15 @@ func (s *Session) ResetStep() *Session {
 }
 
 func (s *Session) GetUserData(val interface{}) interface{} {
-	if s.UserData == nil {
-		s.UserData = val
+	if s.userdata == nil {
+		s.userdata = val
 	}
 
-	return s.UserData
+	return s.userdata
 }
 
 func (s *Session) SetUserData(val interface{}) {
-	s.UserData = val
+	s.userdata = val
 	SessionMgr.OnChange(s)
 }
 

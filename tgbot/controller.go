@@ -251,7 +251,9 @@ func (c *Controller) SendPhotoFileWithKeyboard(path, caption string, buttons [][
 
 func (c *Controller) sendPhoto(path, caption string, buttons [][]Button, keyboard bool) {
 	var msg tgbotapi.PhotoConfig
+	log.Println("path:", path)
 	if strings.HasPrefix(path, "http") {
+		log.Println("path:", path)
 		msg = tgbotapi.NewPhoto(c.ChatId(), tgbotapi.FileURL(path))
 	} else {
 		msg = tgbotapi.NewPhoto(c.ChatId(), tgbotapi.FilePath(path))
