@@ -307,7 +307,7 @@ func (c *Controller) sendMsg(text string, buttons [][]Button, keyboard bool) {
 	msg.ParseMode = ParseMode
 	if keyboard {
 		msg.ReplyMarkup = c.makeKeyboard(buttons)
-		c.sendWithoutRecord(msg)
+		c.send(msg)
 	} else {
 		msg.ReplyMarkup = c.makeInlineKeyboard(buttons)
 		c.send(msg)
@@ -321,6 +321,7 @@ func (c *Controller) send(msg tgbotapi.Chattable) {
 		return
 	}
 
+	log.Println("res:", res.MessageID)
 	if res.MessageID != 0 {
 		c.Session.LastBotId = res.MessageID
 	}
@@ -355,25 +356,27 @@ func (c *Controller) makeInlineKeyboard(buttons [][]Button) *tgbotapi.InlineKeyb
 		keyboard[i] = make([]tgbotapi.InlineKeyboardButton, len(row))
 		for j, btn := range row {
 			content := btn.Data
+			var button tgbotapi.InlineKeyboardButton
 			switch {
 			case strings.HasPrefix(btn.Data, "http"):
-				keyboard[i][j] = tgbotapi.InlineKeyboardButton{
+				button = tgbotapi.InlineKeyboardButton{
 					Text: btn.Label,
 					URL:  &content,
 				}
 			case strings.HasPrefix(btn.Data, "app:"):
-				keyboard[i][j] = tgbotapi.InlineKeyboardButton{
+				button = tgbotapi.InlineKeyboardButton{
 					Text: btn.Label,
 					WebApp: &tgbotapi.WebAppInfo{
 						URL: strings.Replace(btn.Data, "app", "https", 1),
 					},
 				}
 			default:
-				keyboard[i][j] = tgbotapi.InlineKeyboardButton{
+				button = tgbotapi.InlineKeyboardButton{
 					Text:         btn.Label,
 					CallbackData: &content,
 				}
 			}
+			keyboard[i][j] = button
 		}
 	}
 
@@ -385,18 +388,26 @@ func (c *Controller) makeKeyboard(buttons [][]Button) *tgbotapi.ReplyKeyboardMar
 	for i, row := range buttons {
 		keyboard[i] = make([]tgbotapi.KeyboardButton, len(row))
 		for j, btn := range row {
+			var button tgbotapi.KeyboardButton
 			if strings.HasPrefix(btn.Data, "app") {
-				keyboard[i][j] = tgbotapi.KeyboardButton{
+				button = tgbotapi.KeyboardButton{
 					Text: btn.Label,
 					WebApp: &tgbotapi.WebAppInfo{
 						URL: strings.Replace(btn.Data, "app", "https", 1),
 					},
 				}
 			} else {
-				keyboard[i][j] = tgbotapi.KeyboardButton{
-					Text: btn.Label,
+				if btn.Data == "phone" {
+					button = tgbotapi.NewKeyboardButtonContact(btn.Label)
+				} else if btn.Data == "geo" {
+					button = tgbotapi.NewKeyboardButtonLocation(btn.Label)
+				} else {
+					button = tgbotapi.KeyboardButton{
+						Text: btn.Label,
+					}
 				}
 			}
+			keyboard[i][j] = button
 		}
 	}
 
@@ -419,4 +430,12 @@ func (c *Controller) SendError(reason string) {
 
 func (c *Controller) SendInputError(reason string) {
 	c.sendError(fmt.Sprintf("❌❌❌ %s 请重新输入", reason))
+}
+
+func (c *Controller) Contact() *tgbotapi.Contact {
+	if c.update.Message == nil {
+		return nil
+	}
+
+	return c.update.Message.Contact
 }
